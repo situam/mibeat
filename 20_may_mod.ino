@@ -1,26 +1,22 @@
 
-
-
 /*
 USB CDC on Boot: Enabled
 USb mode: OTG
- * Main File 
+ * Main File
  */
 #include <math.h>
 #include "USB.h"
 #include "USBMIDI.h"
 USBMIDI MIDI;
 
+#include <Wire.h>             // Libreria per I2C
+#include <Adafruit_GFX.h>     // Libreria grafica
+#include <Adafruit_SSD1306.h> // Libreria per il display OLED
 
-#include <Wire.h>               // Libreria per I2C
-#include <Adafruit_GFX.h>       // Libreria grafica
-#include <Adafruit_SSD1306.h>   // Libreria per il display OLED
-
-#define SCREEN_WIDTH 128  // Larghezza dello schermo in pixel
-#define SCREEN_HEIGHT 64  // Altezza dello schermo in pixel
+#define SCREEN_WIDTH 128 // Larghezza dello schermo in pixel
+#define SCREEN_HEIGHT 64 // Altezza dello schermo in pixel
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
 
 /*
 
@@ -37,89 +33,80 @@ SENDER
 const char *ssid = "yourAP";
 const char *password = "yourPassword";
 
-//IP address to send UDP data to:
-// either use the ip address of the server or
-// a network broadcast address
+// IP address to send UDP data to:
+//  either use the ip address of the server or
+//  a network broadcast address
 const char *udpAddress = "192.168.4.2";
 const int udpPort = 3333;
 
-//Are we currently connected?
+// Are we currently connected?
 boolean connected = false;
 
-//The udp library class
+// The udp library class
 NetworkUDP udp;
 
 #include "Fader.hpp"
 #include "Button.hpp"
 
-void send_midi_cc(uint8_t note, uint8_t value) {
+void send_midi_cc(uint8_t note, uint8_t value)
+{
   Serial.printf("sendMidiCC(%d, %d)\n", note, value);
   udp.beginPacket(udpAddress, udpPort);
   udp.write(10); // CC
   udp.write(note);
   udp.write(value);
   udp.endPacket();
-  MIDI.controlChange(note, value);  // Usb Midi
-
+  MIDI.controlChange(note, value); // Usb Midi
 }
 //  Button(int pin, int cc_num, MidiCallback send_midi_cc_fn)
-Button b1 = Button(0, 10, send_midi_cc); 
-Button b2 = Button(1, 11, send_midi_cc); 
-Button b3 = Button(2, 12, send_midi_cc); 
-Button b4 = Button(3, 13, send_midi_cc); 
+Button b1 = Button(0, 10, send_midi_cc);
+Button b2 = Button(1, 11, send_midi_cc);
+Button b3 = Button(2, 12, send_midi_cc);
+Button b4 = Button(3, 13, send_midi_cc);
 Button b5 = Button(4, 14, send_midi_cc); // joystick  to wire
 
-
 //   Fader(int pin, int cc_num, MidiCallback send_midi_cc_fn)
-Fader f1 = Fader(0, 50, send_midi_cc);  //pot1
-Fader f2 = Fader(1, 51, send_midi_cc);  //pot2
-Fader f3 = Fader(2, 52, send_midi_cc);  //pot3
-Fader f4 = Fader(3, 53, send_midi_cc);  //fade1
-Fader f5 = Fader(4, 54, send_midi_cc);  //fade 2
-Fader f6 = Fader(5, 55, send_midi_cc);  //fade 3
-Fader f7 = Fader(6, 56, send_midi_cc);  //fade 4
-Fader f8 = Fader(7, 57, send_midi_cc);  // 
-Fader f9 = Fader(8, 58, send_midi_cc);  // 
-Fader f10 = Fader(9, 59, send_midi_cc);  // 
-Fader f11 = Fader(10, 60, send_midi_cc);  // 
-Fader f12 = Fader(12-1, 57, send_midi_cc);  // industrial Joystick x
-Fader f13 = Fader(13-1, 58, send_midi_cc);  // industrial Joystick y
-Fader f14 = Fader(14-1, 60, send_midi_cc);  // normal Joystick y
-Fader f15 = Fader(15-1, 61, send_midi_cc);  // normal Joystick y
+Fader f1 = Fader(0, 50, send_midi_cc);       // pot1
+Fader f2 = Fader(1, 51, send_midi_cc);       // pot2
+Fader f3 = Fader(2, 52, send_midi_cc);       // pot3
+Fader f4 = Fader(3, 53, send_midi_cc);       // fade1
+Fader f5 = Fader(4, 54, send_midi_cc);       // fade 2
+Fader f6 = Fader(5, 55, send_midi_cc);       // fade 3
+Fader f7 = Fader(6, 56, send_midi_cc);       // fade 4
+Fader f8 = Fader(7, 57, send_midi_cc);       //
+Fader f9 = Fader(8, 58, send_midi_cc);       //
+Fader f10 = Fader(9, 59, send_midi_cc);      //
+Fader f11 = Fader(10, 60, send_midi_cc);     //
+Fader f12 = Fader(12 - 1, 57, send_midi_cc); // industrial Joystick x
+Fader f13 = Fader(13 - 1, 58, send_midi_cc); // industrial Joystick y
+Fader f14 = Fader(14 - 1, 60, send_midi_cc); // normal Joystick y
+Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick y
 
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-    MIDI.begin();
-  USB.begin();   // for USB Midi
+  MIDI.begin();
+  USB.begin(); // for USB Midi
 
   pinMode(11, OUTPUT);
-
-
   Wire.begin(13, 12);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.clearDisplay();  // Pulisce lo schermo
-  display.setTextSize(2);  // Imposta la grandezza del testo
-  display.setTextColor(WHITE);  // Imposta il colore del testo
-  display.setCursor(10, 20);  // Imposta la posizione del testo
-  display.println("Ciao!");  // Testo da visualizzare
-  display.display();  // Mostra il testo sul display
-
-
-multiplexerSetup();
-
-
-
-
-
-  //Connect to the WiFi network
+  display.clearDisplay();      // Pulisce lo schermo
+  display.setTextSize(2);      // Imposta la grandezza del testo
+  display.setTextColor(WHITE); // Imposta il colore del testo
+  display.setCursor(10, 20);   // Imposta la posizione del testo
+  display.println("Ciao!");    // Testo da visualizzare
+  display.display();           // Mostra il testo sul display
+  multiplexerSetup();
+  // Connect to the WiFi network
   createWifiAp(ssid, password);
   startUdp();
 }
 
 int blink = 0;
 
-void loop() {
+void loop()
+{
   b1.process();
   b2.process();
   b3.process();
@@ -139,30 +126,32 @@ void loop() {
   f11.process();
   f12.process();
   f13.process();
-  f14.process(); 
+  f14.process();
   f15.process();
-  
+
   delay(10);
-  //digitalWrite(11, blink);
-  //blink = !blink;
+  // digitalWrite(11, blink);
+  // blink = !blink;
 }
 
-
-void createWifiAp(const char *ssid, const char *pwd) {
+void createWifiAp(const char *ssid, const char *pwd)
+{
   Serial.println("Configuring access point...");
 
   // You can remove the password parameter if you want the AP to be open.
   // a valid password must have more than 7 characters
-  if (!WiFi.softAP(ssid, password)) {
+  if (!WiFi.softAP(ssid, password))
+  {
     log_e("Soft AP creation failed.");
-    while (1);
+    while (1)
+      ;
   }
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(myIP);
 }
 
-void startUdp() 
+void startUdp()
 {
   udp.begin(WiFi.localIP(), udpPort);
   connected = true;
