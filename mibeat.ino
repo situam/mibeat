@@ -58,6 +58,38 @@ void send_midi_cc(uint8_t note, uint8_t value)
   udp.endPacket();
   MIDI.controlChange(note, value); // Usb Midi
 }
+
+
+/// Gesture detection for the preset fader
+uint8_t threshold_turn_on = 110;
+uint8_t threshold_reset = 80;
+uint8_t last_value = 65;
+bool gesture_active = false;
+
+/**
+value is between 0 and 127
+**/
+void handle_preset_fader(uint8_t _, uint8_t value)
+{
+  if (value >= threshold_turn_on && last_value < threshold_turn_on && gesture_active == false)
+  {
+    // TODO: handle gesture start
+    gesture_active = true;
+
+    // Serial.println("Gesture detected!");
+    send_midi_cc(127, 33);
+  }
+  else if (value <= threshold_reset && last_value > threshold_reset)
+  {
+    // reset preset
+    gesture_active = false;
+  }
+
+  last_value = value;
+}
+
+
+
 //  Button(int pin, int cc_num, MidiCallback send_midi_cc_fn)
 Button b1 = Button(0, 10, send_midi_cc);
 Button b2 = Button(1, 11, send_midi_cc);
@@ -79,7 +111,7 @@ Fader f10 = Fader(9, 59, send_midi_cc);      //
 Fader f11 = Fader(10, 60, send_midi_cc);     //
 Fader f12 = Fader(12 - 1, 57, send_midi_cc); // industrial Joystick x
 Fader f13 = Fader(13 - 1, 58, send_midi_cc); // industrial Joystick y
-Fader f14 = Fader(14 - 1, 60, send_midi_cc); // normal Joystick y
+Fader f14 = Fader(14 - 1, 60, handle_preset_fader); // normal Joystick y
 Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick y
 
 void setup()
