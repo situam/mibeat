@@ -81,7 +81,7 @@ void handle_preset_fader(uint8_t _, uint8_t value)
     // Serial.println("Gesture detected!");
     send_midi_cc(127, 33); // dummy reference to check if working
     next_preset = next_preset + 1;
-    drawNumber(next_preset, BLUE);
+    drawNumber(next_preset, 2);
   }
   else if (value <= threshold_reset && last_value > threshold_reset)
   {
@@ -118,10 +118,10 @@ Fader f13 = Fader(13 - 1, 58, send_midi_cc); // industrial Joystick y
 Fader f14 = Fader(14 - 1, 60, handle_preset_fader); // normal Joystick y
 Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick x
 
-void drawNumber(uint8_t x, uint16_t color) {
+void drawNumber(uint8_t x, uint8_t size) {
   display.clearDisplay();      // Pulisce lo schermo
-  display.setTextSize(2);      // Imposta la grandezza del testo
-  display.setTextColor(color); // Imposta il colore del testo
+  display.setTextSize(size);      // Imposta la grandezza del testo
+  display.setTextColor(WHITE); // Imposta il colore del testo
   display.setCursor(10, 20);   // Imposta la posizione del testo
   display.println(x);    // Testo da visualizzare
   display.display();           // Mostra il testo sul display
@@ -136,7 +136,7 @@ void setup()
   pinMode(11, OUTPUT);
   Wire.begin(13, 12);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  drawNumber(active_preset, WHITE);
+  drawNumber(active_preset, 3);
 
   multiplexerSetup();
   // Connect to the WiFi network
