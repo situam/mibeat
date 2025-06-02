@@ -61,11 +61,14 @@ void send_midi_cc(uint8_t note, uint8_t value)
 
 
 /// Gesture detection for the preset fader
-uint8_t threshold_turn_on = 110;
-uint8_t threshold_reset = 80;
+uint8_t threshold_turn_on_hi = 110;
+uint8_t threshold_reset_hi = 80;
+uint8_t threshold_turn_on_lo = 7;
+uint8_t threshold_reset_lo = 50;
 uint8_t last_value = 65;
 bool gesture_active = false;
 
+uint8_t max_preset = 9;
 uint8_t active_preset = 0;
 uint8_t next_preset = 0;
 
@@ -74,16 +77,25 @@ value is between 0 and 127
 **/
 void handle_preset_fader(uint8_t _, uint8_t value)
 {
-  if (value >= threshold_turn_on && last_value < threshold_turn_on && gesture_active == false) // UP
+  if (value >= threshold_turn_on_hi && last_value < threshold_turn_on_hi && gesture_active == false) // HI threshold crossing
+  {
+    gesture_active = true;
+    next_preset = (next_preset + 1) % max_preset;
+    drawNumber(next_preset, 2);
+  }
+  else if (value <= threshold_reset_hi && last_value > threshold_reset_hi) // HI threshold reset
+  {
+    // reset preset
+    gesture_active = false;
+  }
+  else if (value <= threshold_turn_on_lo && last_value > threshold_turn_on_lo && gesture_active == false) // DOWN threshold crossing
   {
     gesture_active = true;
 
-    // Serial.println("Gesture detected!");
-    send_midi_cc(127, 33); // dummy reference to check if working
-    next_preset = next_preset + 1;
+    next_preset = (next_preset - 1) % 9;
     drawNumber(next_preset, 2);
   }
-  else if (value <= threshold_reset && last_value > threshold_reset)
+  else if (value >= threshold_reset_lo && last_value < threshold_reset_lo) // DOWN threshold reset
   {
     // reset preset
     gesture_active = false;
