@@ -66,18 +66,22 @@ uint8_t threshold_reset = 80;
 uint8_t last_value = 65;
 bool gesture_active = false;
 
+uint8_t active_preset = 0;
+uint8_t next_preset = 0;
+
 /**
 value is between 0 and 127
 **/
 void handle_preset_fader(uint8_t _, uint8_t value)
 {
-  if (value >= threshold_turn_on && last_value < threshold_turn_on && gesture_active == false)
+  if (value >= threshold_turn_on && last_value < threshold_turn_on && gesture_active == false) // UP
   {
-    // TODO: handle gesture start
     gesture_active = true;
 
     // Serial.println("Gesture detected!");
-    send_midi_cc(127, 33);
+    send_midi_cc(127, 33); // dummy reference to check if working
+    next_preset = next_preset + 1;
+    drawNumber(next_preset, BLUE);
   }
   else if (value <= threshold_reset && last_value > threshold_reset)
   {
@@ -112,7 +116,16 @@ Fader f11 = Fader(10, 60, send_midi_cc);     //
 Fader f12 = Fader(12 - 1, 57, send_midi_cc); // industrial Joystick x
 Fader f13 = Fader(13 - 1, 58, send_midi_cc); // industrial Joystick y
 Fader f14 = Fader(14 - 1, 60, handle_preset_fader); // normal Joystick y
-Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick y
+Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick x
+
+void drawNumber(uint8_t x, uint16_t color) {
+  display.clearDisplay();      // Pulisce lo schermo
+  display.setTextSize(2);      // Imposta la grandezza del testo
+  display.setTextColor(color); // Imposta il colore del testo
+  display.setCursor(10, 20);   // Imposta la posizione del testo
+  display.println(x);    // Testo da visualizzare
+  display.display();           // Mostra il testo sul display
+}
 
 void setup()
 {
@@ -123,12 +136,8 @@ void setup()
   pinMode(11, OUTPUT);
   Wire.begin(13, 12);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.clearDisplay();      // Pulisce lo schermo
-  display.setTextSize(2);      // Imposta la grandezza del testo
-  display.setTextColor(WHITE); // Imposta il colore del testo
-  display.setCursor(10, 20);   // Imposta la posizione del testo
-  display.println("Ciao!");    // Testo da visualizzare
-  display.display();           // Mostra il testo sul display
+  drawNumber(active_preset, WHITE);
+
   multiplexerSetup();
   // Connect to the WiFi network
   createWifiAp(ssid, password);
