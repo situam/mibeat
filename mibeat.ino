@@ -94,7 +94,12 @@ void handle_preset_fader(uint8_t _, uint8_t value)
   {
     gesture_active = true;
 
-    next_preset = (next_preset - 1) % 9;
+    if (next_preset <= 0) {
+      next_preset = max_preset - 1;
+    } else {
+      next_preset = next_preset - 1;
+    }
+
     drawNumber(next_preset, 2);
   }
   else if (value >= threshold_reset_lo && last_value < threshold_reset_lo) // DOWN threshold reset
