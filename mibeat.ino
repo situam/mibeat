@@ -63,15 +63,15 @@ uint8_t next_preset = 0;
 void send_midi_cc(uint8_t note, uint8_t value)
 {
   uint8_t offset = active_preset * 20;
-  uint8_t value_to_send = value + offset; // cc mapped to preset
+  uint8_t preset_mapped_cc = note + offset; // cc mapped to preset
 
-  Serial.printf("sendMidiCC(%d, %d)\n", note, value_to_send);
+  Serial.printf("sendMidiCC(%d, %d)\n", preset_mapped_cc, value);
   udp.beginPacket(udpAddress, udpPort);
   udp.write(10); // CC
-  udp.write(note);
-  udp.write(value_to_send);
+  udp.write(preset_mapped_cc);
+  udp.write(value);
   udp.endPacket();
-  MIDI.controlChange(note, value_to_send); // Usb Midi
+  MIDI.controlChange(preset_mapped_cc, value); // Usb Midi
 }
 
 /**
@@ -136,12 +136,12 @@ Fader f4 = Fader(3, 7, send_midi_cc);       // fade1
 Fader f5 = Fader(4, 8, send_midi_cc);       // fade 2
 Fader f6 = Fader(5, 9, send_midi_cc);       // fade 3
 Fader f7 = Fader(6, 10, send_midi_cc);       // fade 4
-// Fader f8 = Fader(7, 57, send_midi_cc);       //
-// Fader f9 = Fader(8, 58, send_midi_cc);       //
-// Fader f10 = Fader(9, 59, send_midi_cc);      //
-// Fader f11 = Fader(10, 60, send_midi_cc);     //
-Fader f12 = Fader(11, 11, send_midi_cc); // industrial Joystick x
-Fader f13 = Fader(12, 12, send_midi_cc); // industrial Joystick y
+Fader f8 = Fader(7, 11, send_midi_cc);       //
+Fader f9 = Fader(8, 12, send_midi_cc);       //
+Fader f10 = Fader(9, 13, send_midi_cc);      //
+Fader f11 = Fader(10, 14, send_midi_cc);     //
+Fader f12 = Fader(11, 15, send_midi_cc); // industrial Joystick x
+Fader f13 = Fader(12, 16, send_midi_cc); // industrial Joystick y
 
 Fader f14 = Fader(13, 99, handle_preset_fader); // normal Joystick y
 Fader f15 = Fader(14, 99, ignore_fader); // normal Joystick x
@@ -189,13 +189,10 @@ void loop()
   f5.process();
   f6.process();
   f7.process();
- /*
- f8.process();
+  f8.process();
   f9.process();
   f10.process();
-   
   f11.process();
-  */
   f12.process();
   f13.process();
   f14.process();
