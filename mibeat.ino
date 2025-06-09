@@ -48,18 +48,6 @@ NetworkUDP udp;
 #include "Fader.hpp"
 #include "Button.hpp"
 
-void send_midi_cc(uint8_t note, uint8_t value)
-{
-  Serial.printf("sendMidiCC(%d, %d)\n", note, value);
-  udp.beginPacket(udpAddress, udpPort);
-  udp.write(10); // CC
-  udp.write(note);
-  udp.write(value);
-  udp.endPacket();
-  MIDI.controlChange(note, value); // Usb Midi
-}
-
-
 /// Gesture detection for the preset fader
 uint8_t threshold_turn_on_hi = 110;
 uint8_t threshold_reset_hi = 80;
@@ -68,9 +56,23 @@ uint8_t threshold_reset_lo = 50;
 uint8_t last_value = 65;
 bool gesture_active = false;
 
-uint8_t max_preset = 9;
+uint8_t max_preset = 5;
 uint8_t active_preset = 0;
 uint8_t next_preset = 0;
+
+void send_midi_cc(uint8_t note, uint8_t value)
+{
+  uint8_t offset = active_preset * 20;
+  uint8_t value_to_send = value + offset; // cc mapped to preset
+
+  Serial.printf("sendMidiCC(%d, %d)\n", note, value_to_send);
+  udp.beginPacket(udpAddress, udpPort);
+  udp.write(10); // CC
+  udp.write(note);
+  udp.write(value_to_send);
+  udp.endPacket();
+  MIDI.controlChange(note, value_to_send); // Usb Midi
+}
 
 /**
 value is between 0 and 127
@@ -104,31 +106,45 @@ void handle_preset_fader(uint8_t _, uint8_t value)
   last_value = value;
 }
 
+void handle_confirm_preset(uint8_t _, uint8_t __)
+{
+  if (next_preset != active_preset)
+  {
+    active_preset = next_preset;
+    //Serial.printf("Active preset changed to %d\n", active_preset);
+    drawNumber(active_preset, 3);
+  }
+}
 
+void ignore_fader(uint8_t _, uint8_t value) {
+
+}
 
 //  Button(int pin, int cc_num, MidiCallback send_midi_cc_fn)
-Button b1 = Button(0, 10, send_midi_cc);
-Button b2 = Button(1, 11, send_midi_cc);
-Button b3 = Button(2, 12, send_midi_cc);
-Button b4 = Button(3, 13, send_midi_cc);
-Button b5 = Button(4, 14, send_midi_cc); // joystick  to wire
+Button b1 = Button(0, 0, send_midi_cc);
+Button b2 = Button(1, 1, send_midi_cc);
+Button b3 = Button(2, 2, send_midi_cc);
+Button b4 = Button(3, 3, send_midi_cc);
+
+Button b5 = Button(4, 99, handle_confirm_preset); // joystick  to wire
 
 //   Fader(int pin, int cc_num, MidiCallback send_midi_cc_fn)
-Fader f1 = Fader(0, 50, send_midi_cc);       // pot1
-Fader f2 = Fader(1, 51, send_midi_cc);       // pot2
-Fader f3 = Fader(2, 52, send_midi_cc);       // pot3
-Fader f4 = Fader(3, 53, send_midi_cc);       // fade1
-Fader f5 = Fader(4, 54, send_midi_cc);       // fade 2
-Fader f6 = Fader(5, 55, send_midi_cc);       // fade 3
-Fader f7 = Fader(6, 56, send_midi_cc);       // fade 4
-Fader f8 = Fader(7, 57, send_midi_cc);       //
-Fader f9 = Fader(8, 58, send_midi_cc);       //
-Fader f10 = Fader(9, 59, send_midi_cc);      //
-Fader f11 = Fader(10, 60, send_midi_cc);     //
-Fader f12 = Fader(12 - 1, 57, send_midi_cc); // industrial Joystick x
-Fader f13 = Fader(13 - 1, 58, send_midi_cc); // industrial Joystick y
-Fader f14 = Fader(14 - 1, 60, handle_preset_fader); // normal Joystick y
-Fader f15 = Fader(15 - 1, 61, send_midi_cc); // normal Joystick x
+Fader f1 = Fader(0, 4, send_midi_cc);       // pot1
+Fader f2 = Fader(1, 5, send_midi_cc);       // pot2
+Fader f3 = Fader(2, 6, send_midi_cc);       // pot3
+Fader f4 = Fader(3, 7, send_midi_cc);       // fade1
+Fader f5 = Fader(4, 8, send_midi_cc);       // fade 2
+Fader f6 = Fader(5, 9, send_midi_cc);       // fade 3
+Fader f7 = Fader(6, 10, send_midi_cc);       // fade 4
+// Fader f8 = Fader(7, 57, send_midi_cc);       //
+// Fader f9 = Fader(8, 58, send_midi_cc);       //
+// Fader f10 = Fader(9, 59, send_midi_cc);      //
+// Fader f11 = Fader(10, 60, send_midi_cc);     //
+Fader f12 = Fader(11, 11, send_midi_cc); // industrial Joystick x
+Fader f13 = Fader(12, 12, send_midi_cc); // industrial Joystick y
+
+Fader f14 = Fader(13, 99, handle_preset_fader); // normal Joystick y
+Fader f15 = Fader(14, 99, ignore_fader); // normal Joystick x
 
 void drawNumber(uint8_t x, uint8_t size) {
   display.clearDisplay();      // Pulisce lo schermo
