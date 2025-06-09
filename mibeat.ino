@@ -189,10 +189,13 @@ void loop()
   f5.process();
   f6.process();
   f7.process();
-  f8.process();
+ /*
+ f8.process();
   f9.process();
   f10.process();
+   
   f11.process();
+  */
   f12.process();
   f13.process();
   f14.process();
