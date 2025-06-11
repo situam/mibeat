@@ -48,11 +48,11 @@ NetworkUDP udp;
 #include "Fader.hpp"
 #include "Button.hpp"
 
-/// Gesture detection for the preset fader
+/// Gesture detection for the preset fader, note: default "middle" value is approx 43
 uint8_t threshold_turn_on_hi = 110;
 uint8_t threshold_reset_hi = 80;
 uint8_t threshold_turn_on_lo = 7;
-uint8_t threshold_reset_lo = 50;
+uint8_t threshold_reset_lo = 30;
 uint8_t last_value = 65;
 bool gesture_active = false;
 
@@ -79,7 +79,7 @@ value is between 0 and 127
 **/
 void handle_preset_fader(uint8_t _, uint8_t value)
 {
-  send_midi_cc(99, value); // TODO: comment this out, its just for debugging
+  // send_midi_cc(99, value); // TODO: comment this out, its just for debugging
 
   if (value >= threshold_turn_on_hi && last_value < threshold_turn_on_hi && gesture_active == false) // HI threshold crossing
   {
