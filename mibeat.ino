@@ -56,13 +56,13 @@ uint8_t threshold_reset_lo = 50;
 uint8_t last_value = 65;
 bool gesture_active = false;
 
-uint8_t max_preset = 5;
+uint8_t max_preset = 10;
 uint8_t active_preset = 0;
 uint8_t next_preset = 0;
 
 void send_midi_cc(uint8_t note, uint8_t value)
 {
-  uint8_t offset = active_preset * 20;
+  uint8_t offset = active_preset * 13; // Note: 13 is the number of MIDI CC senders we currently active
   uint8_t preset_mapped_cc = note + offset; // cc mapped to preset
 
   Serial.printf("sendMidiCC(%d, %d)\n", preset_mapped_cc, value);
