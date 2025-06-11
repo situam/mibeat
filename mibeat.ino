@@ -79,6 +79,8 @@ value is between 0 and 127
 **/
 void handle_preset_fader(uint8_t _, uint8_t value)
 {
+  send_midi_cc(99, value); // TODO: comment this out, its just for debugging
+
   if (value >= threshold_turn_on_hi && last_value < threshold_turn_on_hi && gesture_active == false) // HI threshold crossing
   {
     gesture_active = true;
