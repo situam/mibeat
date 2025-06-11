@@ -9,6 +9,18 @@ USb mode: OTG
 #include "USBMIDI.h"
 USBMIDI MIDI;
 
+
+
+/**
+Sending keypresses as midi CC
+*/
+#define KEYBOARD_CC_NUM 127
+#define KEYBOARD_CC_VALUE_UP 0
+#define KEYBOARD_CC_VALUE_DOWN 1
+#define KEYBOARD_CC_VALUE_LEFT 2
+#define KEYBOARD_CC_VALUE_RIGHT 3
+
+
 #include <Wire.h>             // Libreria per I2C
 #include <Adafruit_GFX.h>     // Libreria grafica
 #include <Adafruit_SSD1306.h> // Libreria per il display OLED
@@ -17,7 +29,6 @@ USBMIDI MIDI;
 #define SCREEN_HEIGHT 64 // Altezza dello schermo in pixel
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
 /*
 
 SENDER
@@ -74,6 +85,9 @@ void send_midi_cc(uint8_t note, uint8_t value)
   MIDI.controlChange(preset_mapped_cc, value); // Usb Midi
 }
 
+
+
+
 /**
 value is between 0 and 127
 **/
@@ -83,6 +97,9 @@ void handle_preset_fader(uint8_t _, uint8_t value)
 
   if (value >= threshold_turn_on_hi && last_value < threshold_turn_on_hi && gesture_active == false) // HI threshold crossing
   {
+    // On UP: send a "keypress" message
+    send_midi_cc(KEYBOARD_CC_NUM, KEYBOARD_CC_VALUE_UP);
+
     gesture_active = true;
     next_preset = (next_preset + 1) % max_preset;
     drawNumber(next_preset, 2);
@@ -94,6 +111,9 @@ void handle_preset_fader(uint8_t _, uint8_t value)
   }
   else if (value <= threshold_turn_on_lo && last_value > threshold_turn_on_lo && gesture_active == false) // DOWN threshold crossing
   {
+    // On DOWN: send a "keypress" message
+    send_midi_cc(KEYBOARD_CC_NUM, KEYBOARD_CC_VALUE_DOWN);
+
     gesture_active = true;
 
     if (next_preset <= 0) {
