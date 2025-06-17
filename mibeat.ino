@@ -159,14 +159,16 @@ Button b5 = Button(4, 99, handle_confirm_preset); // joystick  to wire
 Fader f1 = Fader(0, 4, send_midi_cc);       // pot1
 Fader f2 = Fader(1, 5, send_midi_cc);       // pot2
 Fader f3 = Fader(2, 6, send_midi_cc);       // pot3
+
 Fader f4 = Fader(3, 7, send_midi_cc);       // fade1
-Fader f5 = Fader(4, 8, send_midi_cc);       // fade 2
-Fader f6 = Fader(5, 9, send_midi_cc);       // fade 3
-Fader f7 = Fader(6, 10, send_midi_cc);       // fade 4
-Fader f8 = Fader(7, 11, send_midi_cc);       //
-Fader f9 = Fader(8, 12, send_midi_cc);       //
-Fader f10 = Fader(9, 13, send_midi_cc);      //
-Fader f11 = Fader(10, 14, send_midi_cc);     //
+//Fader f5 = Fader(4, 8, send_midi_cc);       // fade1
+Fader f6 = Fader(5, 9, send_midi_cc);       // fade2
+//Fader f7 = Fader(6, 10, send_midi_cc);       // fade2
+Fader f8 = Fader(7, 11, send_midi_cc);       // fade3
+//Fader f9 = Fader(8, 12, send_midi_cc);       // fade3
+Fader f10 = Fader(9, 13, send_midi_cc);      // fade4
+//Fader f11 = Fader(10, 14, send_midi_cc);     // fade4
+
 Fader f12 = Fader(11, 15, send_midi_cc); // industrial Joystick x
 Fader f13 = Fader(12, 16, send_midi_cc); // industrial Joystick y
 
@@ -213,13 +215,13 @@ void loop()
   f2.process();
   f3.process();
   f4.process();
-  f5.process();
+  //f5.process();
   f6.process();
-  f7.process();
+  //f7.process();
   f8.process();
-  f9.process();
+  //f9.process();
   f10.process();
-  f11.process();
+  //f11.process();
   f12.process();
   f13.process();
   f14.process();
