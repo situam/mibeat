@@ -31,7 +31,7 @@ public:
     { 
       hold_count++;
 
-      if (hold_count == 10)
+      if (hold_count == 20)
       {
         if (toggle == 127)
         {
