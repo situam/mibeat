@@ -19,6 +19,8 @@ public:
   // Process the fader movement
   void process()
   {
+    static int hold_count = 0;
+
     setMuxChannel(pin, 1);
     // delay(1);
 
@@ -27,20 +29,28 @@ public:
 
     if (val != mem)
     {
-
       if (val == 1)
       { // only handle button when pushed
 
-        if (toggle == 127)
-        {
-          toggle = 0;
-        }
-        else
-        {
-          toggle = 127;
-        }
+        hold_count++;
+        if (hold_count > 10)
+        { // after 10 cycles, send a "hold" message
+          hold_count = 0;
 
-        send_midi_cc_fn(cc_num, toggle);
+          if (toggle == 127)
+          {
+            toggle = 0;
+          }
+          else
+          {
+            toggle = 127;
+          }
+
+          send_midi_cc_fn(cc_num, toggle);
+        }
+      }
+      else {
+        hold_count = 0; // reset hold count when button is released
       }
 
       mem = val;
