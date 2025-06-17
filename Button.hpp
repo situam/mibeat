@@ -12,15 +12,13 @@ public:
 
   // Constructor
   Button(int pin, int cc_num, MidiCallback send_midi_cc_fn)
-      : pin(pin), cc_num(cc_num), send_midi_cc_fn(send_midi_cc_fn), mem(-1), toggle(0)
+      : pin(pin), cc_num(cc_num), send_midi_cc_fn(send_midi_cc_fn), toggle(0), hold_count(0)
   {
   }
 
   // Process the fader movement
   void process()
   {
-    static int hold_count = 0;
-
     setMuxChannel(pin, 1);
     // delay(1);
 
@@ -58,6 +56,6 @@ public:
 private:
   int pin;
   int cc_num;
-  int mem;
+  int hold_count;
   MidiCallback send_midi_cc_fn;
 };
