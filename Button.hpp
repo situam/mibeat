@@ -20,7 +20,7 @@ public:
   void process()
   {
     setMuxChannel(pin, 1);
-    // delay(1);
+    delay(1); // this is important for stability after switching mux channel
 
     int val = digitalRead(MUX_SIG_1);
     Serial.printf("%d, ", val);
@@ -31,7 +31,7 @@ public:
     { 
       hold_count++;
 
-      if (hold_count == 20)
+      if (hold_count == 5)
       {
         if (toggle == 127)
         {

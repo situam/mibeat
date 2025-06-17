@@ -35,7 +35,7 @@ public:
   void process()
   {
     setMuxChannel(pin, 2);
-    // delay(1);
+    delay(1);  // this is important for stability after switching mux channel
 
     runningAvg.addValue(analogRead(MUX_SIG_2));
     int val = runningAvg.getAverage();
