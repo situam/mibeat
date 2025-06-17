@@ -76,7 +76,7 @@ void send_midi_cc(uint8_t note, uint8_t value)
   uint8_t offset = active_preset * 13; // Note: 13 is the number of MIDI CC senders we currently active
   uint8_t preset_mapped_cc = note + offset; // cc mapped to preset
 
-  Serial.printf("sendMidiCC(%d, %d)\n", preset_mapped_cc, value);
+  // Serial.printf("sendMidiCC(%d, %d)\n", preset_mapped_cc, value);
   udp.beginPacket(udpAddress, udpPort);
   udp.write(10); // CC
   udp.write(preset_mapped_cc);
