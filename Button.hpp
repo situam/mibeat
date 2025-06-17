@@ -23,6 +23,7 @@ public:
     // delay(1);
 
     int val = digitalRead(MUX_SIG_1);
+    Serial.printf("b %d: %d, ", pin, val);
 
     if (val != mem)
     {

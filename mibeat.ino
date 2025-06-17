@@ -210,6 +210,7 @@ void loop()
   b3.process();
   b4.process();
   b5.process();
+  Serial.println("");
 
   f1.process();
   f2.process();
